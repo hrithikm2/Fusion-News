@@ -33,12 +33,16 @@ class AgoraService {
   final _userOfflineCtrl = StreamController<int>.broadcast();
   final _connectionStateCtrl =
       StreamController<ConnectionStateType>.broadcast();
+  final _initializedCtrl = StreamController<bool>.broadcast();
+  final _previewCtrl = StreamController<bool>.broadcast();
 
   Stream<bool> get isJoined$ => _isJoinedCtrl.stream;
   Stream<int> get userJoined$ => _userJoinedCtrl.stream;
   Stream<int> get userOffline$ => _userOfflineCtrl.stream;
   Stream<ConnectionStateType> get connectionState$ =>
       _connectionStateCtrl.stream;
+  Stream<bool> get initialized$ => _initializedCtrl.stream;
+  Stream<bool> get preview$ => _previewCtrl.stream;
 
   RtcEngine? get engine => _engine;
   bool get isInitialized => _initialized;
@@ -102,14 +106,28 @@ class AgoraService {
             },
         // Token renewal not needed in App ID only mode
         onError: (ErrorCodeType err, String msg) {
-          // Surface a meaningful failure up the chain
-          throw LiveStreamFailure(message: 'Agora error: $msg (${err.value})');
+          // Surface via connection state instead of throwing
+          _connectionStateCtrl.add(ConnectionStateType.connectionStateFailed);
+          // Log the error for debugging
+          print('Agora error: $msg (${err.value})');
         },
+        onLocalVideoStateChanged:
+            (
+              VideoSourceType source,
+              LocalVideoStreamState state,
+              LocalVideoStreamReason reason,
+            ) {
+              // Debug logging for video state changes
+              print(
+                'LocalVideoState: source=$source state=$state reason=$reason',
+              );
+            },
       ),
     );
 
     _engine = eng;
     _initialized = true;
+    _initializedCtrl.add(true); // notify UI that engine is ready
   }
 
   /// Join as Broadcaster or Audience
@@ -125,24 +143,28 @@ class AgoraService {
     _localUid = uid ?? 0;
 
     final eng = _engine!;
+
+    // Set role BEFORE preview/join
     await eng.setClientRole(
       role: role == RTCClientRole.broadcaster
           ? ClientRoleType.clientRoleBroadcaster
           : ClientRoleType.clientRoleAudience,
     );
 
-    // IMPORTANT for Broadcaster: enable local capture
-    if (role == RTCClientRole.broadcaster) {
-      await eng.startPreview(); // prepares local camera
+    // Only broadcasters preview & publish
+    final isHost = role == RTCClientRole.broadcaster;
+    if (isHost) {
+      await eng.startPreview(); // important: do this before join
+      _previewCtrl.add(true); // notify UI that camera preview is ready
     }
 
     await eng.joinChannel(
       token: "", // App ID only mode - no token needed
       channelId: _channel!,
       uid: _localUid,
-      options: const ChannelMediaOptions(
-        publishCameraTrack: true,
-        publishMicrophoneTrack: true,
+      options: ChannelMediaOptions(
+        publishCameraTrack: isHost,
+        publishMicrophoneTrack: isHost,
         autoSubscribeAudio: true,
         autoSubscribeVideo: true,
       ),
@@ -154,6 +176,7 @@ class AgoraService {
     try {
       await _engine!.leaveChannel();
       await _engine!.stopPreview();
+      _previewCtrl.add(false); // notify UI that preview stopped
     } finally {
       _joined = false;
       _channel = null;
@@ -180,7 +203,8 @@ class AgoraService {
   VideoViewController localVideoController() {
     final eng = _engine;
     if (eng == null) {
-      throw LiveStreamFailure(message: 'Engine is not initialized');
+      // Never called now (widget waits), but keep a guard.
+      throw LiveStreamFailure(message: 'Engine is not initialized yet');
     }
     return VideoViewController(
       rtcEngine: eng,
@@ -193,8 +217,12 @@ class AgoraService {
     if (eng == null) {
       throw LiveStreamFailure(message: 'Engine is not initialized');
     }
-    return VideoViewController(
+    if (_channel == null) {
+      throw LiveStreamFailure(message: 'No active channel');
+    }
+    return VideoViewController.remote(
       rtcEngine: eng,
+      connection: RtcConnection(channelId: _channel!), // required in v6
       canvas: VideoCanvas(uid: uid),
     );
   }

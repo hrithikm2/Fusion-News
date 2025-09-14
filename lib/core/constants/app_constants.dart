@@ -9,7 +9,7 @@ class AppConstants {
   // API Configuration
   static const String baseUrl = 'https://newsapi.org/v2';
   static const String apiKey =
-      'YOUR_NEWS_API_KEY'; // Replace with actual API key
+      'd16febfbcd414143a6972710369fdcf9'; // NewsAPI.org API key
 
   // Agora Configuration
   static const String agoraAppId =

@@ -9,8 +9,25 @@ import '../../../livestream/presentation/controllers/live_stream_controller.dart
 ///
 /// This page provides access to all major features including
 /// news reel and live streaming functionality.
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    // Ensure news data is loaded when home page is accessed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final newsController = Get.find<NewsController>();
+      if (newsController.articles.isEmpty && !newsController.isLoading) {
+        newsController.loadInitialData();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,20 +138,41 @@ class HomePage extends StatelessWidget {
   Widget _buildNewsReelPreview() {
     return GetBuilder<NewsController>(
       builder: (controller) {
+        // Show loading state only if we have no articles and are loading
         if (controller.isLoading && controller.articles.isEmpty) {
           return _buildLoadingCard();
         }
 
+        // If no articles, try to load them
         if (controller.articles.isEmpty) {
-          return _buildEmptyCard('No news articles available');
+          // Trigger loading if not already loading
+          if (!controller.isLoading) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              controller.loadInitialData();
+            });
+          }
+          return _buildLoadingCard();
         }
 
+        // If we have articles but they're all invalid, show a fallback
+        final validArticles = controller.articles
+            .where(
+              (article) =>
+                  article.title.isNotEmpty && article.source.isNotEmpty,
+            )
+            .toList();
+
+        if (validArticles.isEmpty) {
+          return _buildEmptyCard('No valid news articles available');
+        }
+
+        // Show articles in PageView
         return SizedBox(
           height: 200,
           child: PageView.builder(
-            itemCount: controller.articles.take(5).length,
+            itemCount: validArticles.take(5).length,
             itemBuilder: (context, index) {
-              final article = controller.articles[index];
+              final article = validArticles[index];
               return _buildNewsPreviewCard(article);
             },
           ),
@@ -151,39 +189,104 @@ class HomePage extends StatelessWidget {
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          image: DecorationImage(
-            image: NetworkImage(article.imageUrl),
-            fit: BoxFit.cover,
-          ),
+          color: Colors.grey[900],
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)],
-            ),
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
             children: [
-              Text(
-                article.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              // Background image
+              if (article.imageUrl.isNotEmpty)
+                Positioned.fill(
+                  child: Image.network(
+                    article.imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[800],
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey,
+                          size: 48,
+                        ),
+                      );
+                    },
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        color: Colors.grey[800],
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                )
+              else
+                Container(
+                  color: Colors.grey[800],
+                  child: const Icon(
+                    Icons.article,
+                    color: Colors.grey,
+                    size: 48,
+                  ),
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+
+              // Gradient overlay
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.7),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                article.source,
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+
+              // Content
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        article.title.isNotEmpty
+                            ? article.title
+                            : 'No title available',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        article.source.isNotEmpty
+                            ? article.source
+                            : 'Unknown Source',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

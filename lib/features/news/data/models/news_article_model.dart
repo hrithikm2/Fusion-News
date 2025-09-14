@@ -30,6 +30,58 @@ class NewsArticleModel extends NewsArticle {
   factory NewsArticleModel.fromJson(Map<String, dynamic> json) =>
       _$NewsArticleModelFromJson(json);
 
+  /// Create a NewsArticleModel from NewsAPI JSON format
+  factory NewsArticleModel.fromNewsApiJson(Map<String, dynamic> json) {
+    return NewsArticleModel(
+      id:
+          json['url'] as String? ??
+          '', // Use URL as ID since NewsAPI doesn't provide ID
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      content:
+          json['content'] as String? ?? json['description'] as String? ?? '',
+      author: json['author'] as String? ?? 'Unknown',
+      source: json['source']?['name'] as String? ?? 'Unknown Source',
+      url: json['url'] as String? ?? '',
+      imageUrl: json['urlToImage'] as String? ?? '',
+      publishedAt: json['publishedAt'] != null
+          ? DateTime.parse(json['publishedAt'] as String)
+          : DateTime.now(),
+      categories: _extractCategories(json),
+      readTime: _calculateReadTime(
+        json['content'] as String? ?? json['description'] as String? ?? '',
+      ),
+      isBookmarked: false,
+      likes: 0,
+      shares: 0,
+    );
+  }
+
+  /// Extract categories from NewsAPI response
+  static List<String> _extractCategories(Map<String, dynamic> json) {
+    final categories = <String>[];
+
+    // Add source as category
+    if (json['source']?['name'] != null) {
+      categories.add(json['source']['name'] as String);
+    }
+
+    // Add any other category information if available
+    if (json['category'] != null) {
+      categories.add(json['category'] as String);
+    }
+
+    return categories.isEmpty ? ['General'] : categories;
+  }
+
+  /// Calculate estimated read time based on content length
+  static int _calculateReadTime(String content) {
+    final wordCount = content.split(' ').length;
+    final readTime = (wordCount / 200)
+        .ceil(); // Average reading speed: 200 words per minute
+    return readTime < 1 ? 1 : readTime;
+  }
+
   /// Convert NewsArticleModel to JSON
   Map<String, dynamic> toJson() => _$NewsArticleModelToJson(this);
 

@@ -67,7 +67,9 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
 
       if (response.statusCode == 200) {
         final List<dynamic> articles = response.data['articles'] ?? [];
-        return articles.map((json) => NewsArticleModel.fromJson(json)).toList();
+        return articles
+            .map((json) => NewsArticleModel.fromNewsApiJson(json))
+            .toList();
       } else {
         throw ServerFailure(
           message: 'Failed to fetch news articles',
@@ -108,7 +110,7 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
       if (response.statusCode == 200) {
         final List<dynamic> articles = response.data['articles'] ?? [];
         if (articles.isNotEmpty) {
-          return NewsArticleModel.fromJson(articles.first);
+          return NewsArticleModel.fromNewsApiJson(articles.first);
         }
       }
       return null;
@@ -150,7 +152,9 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
 
       if (response.statusCode == 200) {
         final List<dynamic> articles = response.data['articles'] ?? [];
-        return articles.map((json) => NewsArticleModel.fromJson(json)).toList();
+        return articles
+            .map((json) => NewsArticleModel.fromNewsApiJson(json))
+            .toList();
       } else {
         throw ServerFailure(
           message: 'Failed to search news articles',
@@ -195,7 +199,9 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
 
       if (response.statusCode == 200) {
         final List<dynamic> articles = response.data['articles'] ?? [];
-        return articles.map((json) => NewsArticleModel.fromJson(json)).toList();
+        return articles
+            .map((json) => NewsArticleModel.fromNewsApiJson(json))
+            .toList();
       } else {
         throw ServerFailure(
           message: 'Failed to fetch trending news',
