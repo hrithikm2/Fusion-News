@@ -12,6 +12,7 @@ class NewsReelItem extends StatelessWidget {
   final VoidCallback onBookmark;
   final VoidCallback onLike;
   final VoidCallback onShare;
+  final VoidCallback? onTap;
 
   const NewsReelItem({
     super.key,
@@ -19,6 +20,7 @@ class NewsReelItem extends StatelessWidget {
     required this.onBookmark,
     required this.onLike,
     required this.onShare,
+    this.onTap,
   });
 
   static const double _sidePadding = AppConstants.defaultPadding;
@@ -312,7 +314,7 @@ class NewsReelItem extends StatelessWidget {
     final insets = MediaQuery.of(context).padding;
 
     return Positioned(
-      top: insets.top + 60,
+      top: insets.top,
       left: 16,
       right:
           16 + _rightActionsPanelWidth, // keep chips clear of the right panel
@@ -348,22 +350,25 @@ class NewsReelItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Background image
-          _buildArticleImage(),
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox.expand(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Background image
+            _buildArticleImage(),
 
-          // Article content (left-aligned, padded away from right panel & bottom)
-          _buildArticleContent(context),
+            // Article content (left-aligned, padded away from right panel & bottom)
+            _buildArticleContent(context),
 
-          // Action buttons (right vertical panel; sits above safe area)
-          _buildActionButtons(context),
+            // Action buttons (right vertical panel; sits above safe area)
+            _buildActionButtons(context),
 
-          // Categories (top-left chips; kept away from right actions)
-          _buildCategories(context),
-        ],
+            // Categories (top-left chips; kept away from right actions)
+            _buildCategories(context),
+          ],
+        ),
       ),
     );
   }

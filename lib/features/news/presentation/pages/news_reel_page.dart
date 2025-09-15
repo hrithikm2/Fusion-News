@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/news_controller.dart';
 import '../widgets/news_reel_item.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/app_routes.dart';
 
 /// News Reel Page - A TikTok-like vertical scrolling interface for news articles
 ///
@@ -19,7 +20,6 @@ class _NewsReelPageState extends State<NewsReelPage> {
   final PageController _pageController = PageController();
   final NewsController _newsController = Get.find<NewsController>();
 
-  int _currentIndex = 0;
   bool _isLoadingMore = false;
 
   @override
@@ -61,9 +61,7 @@ class _NewsReelPageState extends State<NewsReelPage> {
 
   /// Handle page change
   void _onPageChanged(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    // Page changed - could be used for analytics or other tracking
   }
 
   /// Build loading indicator
@@ -203,6 +201,8 @@ class _NewsReelPageState extends State<NewsReelPage> {
                   onBookmark: () => _newsController.toggleBookmark(article.id),
                   onLike: () => _newsController.toggleLike(article.id),
                   onShare: () => _newsController.shareArticle(article.id),
+                  onTap: () =>
+                      Get.toNamed(AppRoutes.newsDetail, arguments: article),
                 );
               },
             ),

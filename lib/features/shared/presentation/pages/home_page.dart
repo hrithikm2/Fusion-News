@@ -23,7 +23,8 @@ class _HomePageState extends State<HomePage> {
     // Ensure news data is loaded when home page is accessed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final newsController = Get.find<NewsController>();
-      if (newsController.articles.isEmpty && !newsController.isLoading) {
+      // Always try to load initial data if articles are empty
+      if (newsController.articles.isEmpty) {
         newsController.loadInitialData();
       }
     });
@@ -136,55 +137,48 @@ class _HomePageState extends State<HomePage> {
 
   /// Build news reel preview
   Widget _buildNewsReelPreview() {
-    return GetBuilder<NewsController>(
-      builder: (controller) {
-        // Show loading state only if we have no articles and are loading
-        if (controller.isLoading && controller.articles.isEmpty) {
-          return _buildLoadingCard();
-        }
+    final newsController = Get.find<NewsController>();
 
-        // If no articles, try to load them
-        if (controller.articles.isEmpty) {
-          // Trigger loading if not already loading
-          if (!controller.isLoading) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              controller.loadInitialData();
-            });
-          }
-          return _buildLoadingCard();
-        }
+    return Obx(() {
+      // Show loading state only if we have no articles and are loading
+      if (newsController.isLoading && newsController.articles.isEmpty) {
+        return _buildLoadingCard();
+      }
 
-        // If we have articles but they're all invalid, show a fallback
-        final validArticles = controller.articles
-            .where(
-              (article) =>
-                  article.title.isNotEmpty && article.source.isNotEmpty,
-            )
-            .toList();
+      // If no articles, show loading (data should be loading from initState)
+      if (newsController.articles.isEmpty) {
+        return _buildLoadingCard();
+      }
 
-        if (validArticles.isEmpty) {
-          return _buildEmptyCard('No valid news articles available');
-        }
+      // If we have articles but they're all invalid, show a fallback
+      final validArticles = newsController.articles
+          .where(
+            (article) => article.title.isNotEmpty && article.source.isNotEmpty,
+          )
+          .toList();
 
-        // Show articles in PageView
-        return SizedBox(
-          height: 200,
-          child: PageView.builder(
-            itemCount: validArticles.take(5).length,
-            itemBuilder: (context, index) {
-              final article = validArticles[index];
-              return _buildNewsPreviewCard(article);
-            },
-          ),
-        );
-      },
-    );
+      if (validArticles.isEmpty) {
+        return _buildEmptyCard('No valid news articles available');
+      }
+
+      // Show articles in PageView
+      return SizedBox(
+        height: 200,
+        child: PageView.builder(
+          itemCount: validArticles.take(5).length,
+          itemBuilder: (context, index) {
+            final article = validArticles[index];
+            return _buildNewsPreviewCard(article);
+          },
+        ),
+      );
+    });
   }
 
   /// Build news preview card
   Widget _buildNewsPreviewCard(dynamic article) {
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.newsReel),
+      onTap: () => Get.toNamed(AppRoutes.newsDetail, arguments: article),
       child: Container(
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
@@ -332,31 +326,32 @@ class _HomePageState extends State<HomePage> {
 
   /// Build live stream preview
   Widget _buildLiveStreamPreview() {
-    return GetBuilder<LiveStreamController>(
-      builder: (controller) {
-        if (controller.isLoading.value && controller.remoteUids.isEmpty) {
-          return _buildLoadingCard();
-        }
+    final liveStreamController = Get.find<LiveStreamController>();
 
-        if (controller.remoteUids.isEmpty) {
-          return _buildEmptyCard('No live streams available');
-        }
+    return Obx(() {
+      if (liveStreamController.isLoading.value &&
+          liveStreamController.remoteUids.isEmpty) {
+        return _buildLoadingCard();
+      }
 
-        return SizedBox(
-          height: 120,
-          child: ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            scrollDirection: Axis.horizontal,
-            itemCount: controller.remoteUids.take(3).length,
-            itemBuilder: (context, index) {
-              final stream = controller.remoteUids[index];
-              return _buildLiveStreamPreviewCard(stream);
-            },
-          ),
-        );
-      },
-    );
+      if (liveStreamController.remoteUids.isEmpty) {
+        return _buildEmptyCard('No live streams available');
+      }
+
+      return SizedBox(
+        height: 120,
+        child: ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          itemCount: liveStreamController.remoteUids.take(3).length,
+          itemBuilder: (context, index) {
+            final stream = liveStreamController.remoteUids[index];
+            return _buildLiveStreamPreviewCard(stream);
+          },
+        ),
+      );
+    });
   }
 
   /// Build live stream preview card

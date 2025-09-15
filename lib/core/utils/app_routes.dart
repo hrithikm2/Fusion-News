@@ -10,6 +10,7 @@ class AppRoutes {
   static const String splash = '/';
   static const String home = '/home';
   static const String newsReel = '/news-reel';
+  static const String newsDetail = '/news-detail';
   static const String liveStream = '/live-stream';
   static const String startLiveStream = '/start-live-stream';
   static const String profile = '/profile';
@@ -19,6 +20,7 @@ class AppRoutes {
   static const String splashPath = '/';
   static const String homePath = '/home';
   static const String newsReelPath = '/news-reel';
+  static const String newsDetailPath = '/news-detail';
   static const String liveStreamPath = '/live-stream';
   static const String startLiveStreamPath = '/start-live-stream';
   static const String profilePath = '/profile';

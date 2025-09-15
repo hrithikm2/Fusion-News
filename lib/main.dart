@@ -9,6 +9,7 @@ import 'features/news/data/datasources/news_remote_datasource.dart';
 import 'features/news/data/datasources/news_local_datasource.dart';
 import 'features/news/data/repositories/news_repository_impl.dart';
 import 'features/news/domain/repositories/news_repository.dart';
+import 'features/news/domain/entities/news_article.dart';
 import 'features/news/presentation/controllers/news_controller.dart';
 import 'features/livestream/data/datasources/agora_service.dart';
 import 'features/livestream/data/repositories/live_stream_repository_impl.dart';
@@ -16,6 +17,7 @@ import 'features/livestream/domain/repositories/live_stream_repository.dart';
 import 'features/livestream/presentation/controllers/live_stream_controller.dart';
 import 'features/shared/presentation/pages/home_page.dart';
 import 'features/news/presentation/pages/news_reel_page.dart';
+import 'features/news/presentation/pages/news_detail_page.dart';
 import 'features/livestream/presentation/pages/live_stream_page.dart';
 
 /// Main entry point of the Fusion News application
@@ -158,6 +160,14 @@ class FusionNewsApp extends StatelessWidget {
       GetPage(
         name: AppRoutes.newsReel,
         page: () => const NewsReelPage(),
+        transition: Transition.cupertino,
+      ),
+      GetPage(
+        name: AppRoutes.newsDetail,
+        page: () {
+          final article = Get.arguments as NewsArticle;
+          return NewsDetailPage(article: article);
+        },
         transition: Transition.cupertino,
       ),
       GetPage(
