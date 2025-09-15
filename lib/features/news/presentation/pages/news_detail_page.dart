@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/news_article.dart';
+import '../../../../core/widgets/animated_card.dart';
 
 /// News Detail Page with SliverAppBar
 ///
@@ -177,159 +178,196 @@ class NewsDetailPage extends StatelessWidget {
 
   /// Build article metadata section
   Widget _buildArticleMetadata() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[800]!, width: 1),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.person, color: Colors.white70, size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  article.author.isNotEmpty ? article.author : 'Unknown Author',
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.source, color: Colors.white70, size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  article.source.isNotEmpty ? article.source : 'Unknown Source',
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.access_time, color: Colors.white70, size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  _formatDate(article.publishedAt),
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-              ),
-            ],
-          ),
-          if (article.readTime > 0) ...[
-            const SizedBox(height: 8),
+    return FadeInAnimation(
+      delay: const Duration(milliseconds: 300),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[900],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[800]!, width: 1),
+        ),
+        child: Column(
+          children: [
             Row(
               children: [
-                const Icon(Icons.timer, color: Colors.white70, size: 16),
+                const Icon(Icons.person, color: Colors.white70, size: 16),
                 const SizedBox(width: 8),
-                Text(
-                  '${article.readTime} min read',
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                Expanded(
+                  child: Text(
+                    article.author.isNotEmpty
+                        ? article.author
+                        : 'Unknown Author',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
                 ),
               ],
             ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.source, color: Colors.white70, size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    article.source.isNotEmpty
+                        ? article.source
+                        : 'Unknown Source',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.access_time, color: Colors.white70, size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _formatDate(article.publishedAt),
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+            if (article.readTime > 0) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.timer, color: Colors.white70, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${article.readTime} min read',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
 
   /// Build description section
   Widget _buildDescriptionSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Description',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+    return FadeInAnimation(
+      delay: const Duration(milliseconds: 400),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Description',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          article.description,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 16,
-            height: 1.5,
+          const SizedBox(height: 12),
+          Text(
+            article.description,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 16,
+              height: 1.5,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   /// Build content section
   Widget _buildContentSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Content',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+    return FadeInAnimation(
+      delay: const Duration(milliseconds: 500),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Content',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          article.content,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 16,
-            height: 1.5,
+          const SizedBox(height: 12),
+          Text(
+            article.content,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 16,
+              height: 1.5,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   /// Build action buttons
   Widget _buildActionButtons() {
-    return Row(
-      children: [
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () => _openInBrowser(),
-            icon: const Icon(Icons.open_in_browser),
-            label: const Text('Read Full Article'),
-            style: ElevatedButton.styleFrom(
+    return FadeInAnimation(
+      delay: const Duration(milliseconds: 600),
+      child: Row(
+        children: [
+          Expanded(
+            child: AnimatedCard(
+              onTap: () => _openInBrowser(),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              borderRadius: BorderRadius.circular(8),
               backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.open_in_browser, color: Colors.white),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Read Full Article',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () => _shareArticle(),
-            icon: const Icon(Icons.share),
-            label: const Text('Share'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.white,
-              side: const BorderSide(color: Colors.white),
+          const SizedBox(width: 12),
+          Expanded(
+            child: AnimatedCard(
+              onTap: () => _shareArticle(),
               padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8),
+              backgroundColor: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.share, color: Colors.white),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Share',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/app_routes.dart';
+import '../../../../core/widgets/animated_loading_card.dart';
+import '../../../../core/widgets/animated_card.dart';
 import '../../../news/presentation/controllers/news_controller.dart';
 import '../../../livestream/presentation/controllers/live_stream_controller.dart';
 
@@ -41,22 +43,34 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              _buildHeader(),
+              FadeInAnimation(
+                delay: const Duration(milliseconds: 100),
+                child: _buildHeader(),
+              ),
 
               const SizedBox(height: 32),
 
               // Main features
-              _buildNewsReelSection(),
+              FadeInAnimation(
+                delay: const Duration(milliseconds: 200),
+                child: _buildNewsReelSection(),
+              ),
 
               const SizedBox(height: 32),
 
               // Live Stream Section
-              _buildLiveStreamSection(),
+              FadeInAnimation(
+                delay: const Duration(milliseconds: 300),
+                child: _buildLiveStreamSection(),
+              ),
 
               const SizedBox(height: 32),
 
               // Quick Actions
-              _buildQuickActions(),
+              FadeInAnimation(
+                delay: const Duration(milliseconds: 400),
+                child: _buildQuickActions(),
+              ),
             ],
           ),
         ),
@@ -177,113 +191,105 @@ class _HomePageState extends State<HomePage> {
 
   /// Build news preview card
   Widget _buildNewsPreviewCard(dynamic article) {
-    return GestureDetector(
+    return AnimatedCard(
       onTap: () => Get.toNamed(AppRoutes.newsDetail, arguments: article),
-      child: Container(
-        margin: const EdgeInsets.only(right: 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: Colors.grey[900],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
-            children: [
-              // Background image
-              if (article.imageUrl.isNotEmpty)
-                Positioned.fill(
-                  child: Image.network(
-                    article.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey[800],
-                        child: const Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey,
-                          size: 48,
-                        ),
-                      );
-                    },
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        color: Colors.grey[800],
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                )
-              else
-                Container(
-                  color: Colors.grey[800],
-                  child: const Icon(
-                    Icons.article,
-                    color: Colors.grey,
-                    size: 48,
-                  ),
-                ),
-
-              // Gradient overlay
+      margin: const EdgeInsets.only(right: 16),
+      borderRadius: BorderRadius.circular(16),
+      backgroundColor: Colors.grey[900],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            // Background image
+            if (article.imageUrl.isNotEmpty)
               Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.7),
-                      ],
-                    ),
-                  ),
+                child: Image.network(
+                  article.imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[800],
+                      child: const Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey,
+                        size: 48,
+                      ),
+                    );
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      color: Colors.grey[800],
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      ),
+                    );
+                  },
                 ),
+              )
+            else
+              Container(
+                color: Colors.grey[800],
+                child: const Icon(Icons.article, color: Colors.grey, size: 48),
               ),
 
-              // Content
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        article.title.isNotEmpty
-                            ? article.title
-                            : 'No title available',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        article.source.isNotEmpty
-                            ? article.source
-                            : 'Unknown Source',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
-                      ),
+            // Gradient overlay
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.7),
                     ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+
+            // Content
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      article.title.isNotEmpty
+                          ? article.title
+                          : 'No title available',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      article.source.isNotEmpty
+                          ? article.source
+                          : 'Unknown Source',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -475,61 +481,47 @@ class _HomePageState extends State<HomePage> {
     required VoidCallback onTap,
     required Color color,
   }) {
-    return GestureDetector(
+    return AnimatedCard(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.2),
-            width: 1,
+      padding: const EdgeInsets.all(16),
+      borderRadius: BorderRadius.circular(12),
+      backgroundColor: Colors.white.withValues(alpha: 0.1),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 20),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 20),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
+          ),
+        ],
       ),
     );
   }
 
   /// Build loading card
   Widget _buildLoadingCard() {
-    return Container(
+    return const AnimatedLoadingCard(
       height: 200,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: const Center(
-        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-      ),
+      borderRadius: BorderRadius.all(Radius.circular(16)),
     );
   }
 

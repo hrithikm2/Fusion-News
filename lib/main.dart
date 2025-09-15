@@ -156,11 +156,13 @@ class FusionNewsApp extends StatelessWidget {
         name: AppRoutes.home,
         page: () => const HomePage(),
         transition: Transition.fadeIn,
+        transitionDuration: const Duration(milliseconds: 300),
       ),
       GetPage(
         name: AppRoutes.newsReel,
         page: () => const NewsReelPage(),
-        transition: Transition.cupertino,
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 400),
       ),
       GetPage(
         name: AppRoutes.newsDetail,
@@ -168,12 +170,14 @@ class FusionNewsApp extends StatelessWidget {
           final article = Get.arguments as NewsArticle;
           return NewsDetailPage(article: article);
         },
-        transition: Transition.cupertino,
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 400),
       ),
       GetPage(
         name: AppRoutes.liveStream,
         page: () => const LiveStreamPage(channelName: 'fusion_news_live'),
-        transition: Transition.cupertino,
+        transition: Transition.downToUp,
+        transitionDuration: const Duration(milliseconds: 500),
       ),
       GetPage(
         name: AppRoutes.startLiveStream,
@@ -181,7 +185,8 @@ class FusionNewsApp extends StatelessWidget {
           isBroadcasting: true,
           channelName: 'fusion_news_live',
         ),
-        transition: Transition.cupertino,
+        transition: Transition.downToUp,
+        transitionDuration: const Duration(milliseconds: 500),
       ),
     ];
   }

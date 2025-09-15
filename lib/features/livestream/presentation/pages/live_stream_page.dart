@@ -28,11 +28,13 @@ class _LiveStreamPageState extends State<LiveStreamPage> {
   void initState() {
     super.initState();
     c = Get.find<LiveStreamController>();
-    if (widget.isBroadcasting) {
-      c.startBroadcast(widget.channelName, uid: widget.uid);
-    } else {
-      c.joinAsViewer(widget.channelName, uid: widget.uid);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.isBroadcasting) {
+        c.startBroadcast(widget.channelName, uid: widget.uid);
+      } else {
+        c.joinAsViewer(widget.channelName, uid: widget.uid);
+      }
+    });
   }
 
   @override
